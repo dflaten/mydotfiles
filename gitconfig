@@ -1,0 +1,23 @@
+[color]
+	ui = auto
+[user]
+	email = david.flaten@gmail.com
+	name = discocorg
+[gpg]
+	program = /usr/local/bin/gpg
+[credential]
+	helper = osxkeychain
+	helper = 
+	helper = /usr/local/share/gcm-core/git-credential-manager
+[merge]
+	tool = diffconflicts
+[mergetool "diffconflicts"]
+	cmd = vim -c DiffConflicts \"$MERGED\" \"$BASE\" \"$LOCAL\" \"$REMOTE\"
+	trustExitCode = true
+[mergetool]
+	keepBackup = false
+[init]
+	templatedir = ~/.git_template
+	defaultBranch = mainline
+[credential "https://dev.azure.com"]
+	useHttpPath = true
