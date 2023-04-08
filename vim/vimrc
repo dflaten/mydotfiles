@@ -1,147 +1,284 @@
-"Set compatability due to requirement with vim-force plugin
-set nocompatible
-"syntax highlighting
-syntax on
-"indent properly if the filtype is known
-if has("autocmd")
-  filetype indent plugin on
+" https://gist.github.com/miguelgrinberg/527bb5a400791f89b3c4da4bd61222e4
+" plugins
+let need_to_install_plugins = 0
+if empty(glob('~/.vim/autoload/plug.vim'))
+    silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+        \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+    let need_to_install_plugins = 1
 endif
-"line numbers on
-set number
-"Backspace over everything
-set backspace=indent,eol,start
-"define number of colors
-set t_Co=256
-" define initial background (light/dark)
-set background=dark
-" define color scheme
-colorscheme solarized
-" always display status line
+
+call plug#begin()
+" Sensuble defaults
+Plug 'tpope/vim-sensible'
+
+" File browser with git indicators
+Plug 'preservim/nerdtree'
+Plug 'vim-scripts/The-NERD-tree'
+Plug 'Xuyuanp/nerdtree-git-plugin'
+
+" Tabs
+Plug 'jistr/vim-nerdtree-tabs'
+
+" git indicator in editor
+Plug 'airblade/vim-gitgutter'
+
+" Status bar
+Plug 'itchyny/lightline.vim'
+
+" Nord theme
+Plug 'arcticicestudio/nord-vim'
+
+" Tabs
+Plug 'ap/vim-buftabline'
+
+" Telescope file finder / picker
+Plug 'nvim-lua/popup.nvim'
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-telescope/telescope.nvim'
+
+" neovim language things
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+Plug 'neovim/nvim-lspconfig'
+
+" Nicer LSP UI
+Plug 'glepnir/lspsaga.nvim'
+call plug#end()
+
+filetype plugin indent on
+syntax on
+
+if need_to_install_plugins == 1
+    echo "Installing plugins..."
+    silent! PlugInstall
+    echo "Done!"
+    q
+endif
+
+" gfiles shortcut
+nnoremap <C-f> <cmd>Telescope find_files<cr>
+nnoremap <C-g> <cmd>Telescope git_files<cr>
+
+" always show the status bar
 set laststatus=2
-" do not show mode as lightline shows it
-set noshowmode
-" define lightline configuration
-let g:lightline = {
-      \ 'colorscheme': 'solarized',
-      \  'active': {
-      \   'left': [ [ 'mode', 'paste' ],
-      \             [ 'gitbranch', 'readonly', 'modified', 'buffers']
-      \           ]   
-      \ },
-      \ 'component_function': {
-      \   'gitbranch': 'fugitive#head',
-      \ },
-      \ }
-" define function to toggle solarized theme
-" change background and update lightline color scheme
-function! ToggleSolarizedTheme()
-  let &background = ( &background == "dark"? "light" : "dark" )
-  if exists("g:lightline")
-    runtime autoload/lightline/colorscheme/solarized.vim
-    call lightline#colorscheme()
-  endif
+
+" enable 256 colors
+set t_Co=256
+set t_ut=
+
+" turn on line numbering
+set number
+
+" sane text files
+set fileformat=unix
+set encoding=utf-8
+set fileencoding=utf-8
+
+" sane editing
+set expandtab
+set tabstop=4
+set shiftwidth=4
+set softtabstop=4
+set colorcolumn=80
+set viminfo='25,\"50,n~/.viminfo
+set tw=79
+set autoindent
+set smartindent
+
+" word movement
+imap <S-Left> <Esc>bi
+nmap <S-Left> b
+imap <S-Right> <Esc><Right>wi
+nmap <S-Right> w
+
+" indent/unindent with tab/shift-tab
+nmap <Tab> >>
+imap <S-Tab> <Esc><<i
+nmap <S-tab> <<
+
+" mouse
+set mouse=a
+let g:is_mouse_enabled = 1
+noremap <silent> <Leader>m :call ToggleMouse()<CR>
+function ToggleMouse()
+    if g:is_mouse_enabled == 1
+        echo "Mouse OFF"
+        set mouse=
+        let g:is_mouse_enabled = 0
+    else
+        echo "Mouse ON"
+        set mouse=a
+        let g:is_mouse_enabled = 1
+    endif
 endfunction
-" map F12 to ToggleSolarizedTheme() function
-map <F12> :call ToggleSolarizedTheme()<CR>
-"make insert -> Normal fast
-set timeoutlen=1000 ttimeoutlen=0
-"hidden buffers
-set hidden
-"make vimdiff use patience algorithm for diffs
-set diffopt=internal,algorithm:patience,indent-heuristic
-"Force.com settings
-let g:apex_backup_folder="/Users/dflaten/tmp/apex/backup"
-let g:apex_temp_folder="/Users/dflaten/tmp/apex/gvim-deployment"
-"Credentials for the Salesforce org go in the directory below
-let g:apex_properties_folder="/Users/dflaten/tmp/apex/gvim-deployment"
-"Path to a package that is needed
-let g:apex_tooling_force_dot_com_path="/Users/dflaten/tmp/apex/tooling-force.com-0.4.4.0.jar"
-" Enable fzf
-set rtp+=/usr/local/opt/fzf
-"shortcut key for copy entire file to clipboard 
-noremap ,, :%w !pbcopy<CR>
-"settings for lightline-bufferline
-let g:lightline.tabline          = {'left': [['buffers']], 'right':[['']]}
-let g:lightline.component_expand = {'buffers': 'lightline#bufferline#buffers'}
-let g:lightline.component_type   = {'buffers': 'tabsel'}
-let g:lightline#bufferline#show_number = 1
-"abreviation for finding files in parent folder usage: :e %%/
-cabbr <expr> %% expand('%:p:h')
-"highlight search  by default
-set hlsearch
-noremap ,; :set hlsearch!<CR>
-"search, ignore case by default
-set ignorecase
-"if search has upper be case sensitive otherwise not
-set smartcase
-"move to search as you type
-set incsearch
-"Tidy command for HTML5
-:vmap ,x :!tidy -q -i --show-errors 0<CR>
-" REQUIRED. This makes vim invoke Latex-Suite when you open a tex file.
-filetype plugin on
-" OPTIONAL: Starting with Vim 7, the filetype of empty .tex files defaults to
-" 'plaintex' instead of 'tex', which results in vim-latex not being loaded.
-" The following changes the default filetype back to 'tex':
-let g:tex_flavor='latex'
-"setting filetype for typesetting
-let g:Tex_CompileRule_pdf = 'xelatex'
-"hotkey to update help pages
-nmap ,j :helptags ~/.vim/doc<CR>
-"rpmose mode, use 'call WordProcessor() to activate'
-func! WordProcessor()
-  " movement changes
-  map j gj
-  map k gk
-  " formatting text
-  setlocal formatoptions=1
-  setlocal noexpandtab
-  setlocal wrap
-  setlocal linebreak
-  " spelling and thesaurus
-  setlocal spell spelllang=en_us
-  set thesaurus+=/home/test/.vim/thesaurus/mthesaur.txt
-  " complete+=s makes autocompletion search the thesaurus
-  set complete+=s
-endfu
-com! WP call WordProcessor()
-"Run Python script from VIM
-nnoremap <buffer> <F9> :exec '!python3' shellescape(@%, 1)<cr>
-"Run Python tests from VIM
-nnoremap <buffer> <F8> :exec '!pytest' shellescape(@%, 1)<cr>
-"Easier Split navigations
-nnoremap <C-J> <C-W><C-J>
-nnoremap <C-K> <C-W><C-K>
-nnoremap <C-L> <C-W><C-L>
-nnoremap <C-H> <C-W><C-H>
-"Execute anonymous Apex
-nnoremap <buffer> <F7> :exec '!sfdx force:apex:execute -f ' shellescape(@%, 1)<cr>
-"Set apex code defaults, 4 spaces for tabs
-autocmd FileType apexcode setlocal shiftwidth=4 tabstop=4
-"set vcs to git
-let g:signify_vcs_list = [ 'git' ]
-highlight SignColumn ctermbg=073642
-"toggle spell check
-:command SC :setlocal spell! spelllang=en_us
-"search for selection
-vnoremap // y/<C-R>"<CR>
-"java settings
-func! JavaSettings()
-  set path=**
-  "chdir your/project/root "update this based on project
-  "highlight functions using java guidelines
-  let java_highlight_functions="style"
-  "use below if people in project aren't following guidelines
-  "let java_highlight_functions="indent"
-  "System.out.println() and System.err.println() highlighted diff for debug.
-  let java_highlight_debug=1
-  "Take care of indents for Java.
-  set autoindent
-  set si
-  set shiftwidth=4
-  let java_highlight_functions = 1
-  let java_highlight_all = 1
-  " If you are trying this at runtime, you need to reload the syntax file
-  set filetype=java
-endfu
-autocmd FileType java call JavaSettings() 
+
+" color scheme
+syntax on
+colorscheme solarized 
+filetype on
+filetype plugin indent on
+
+" lightline
+set noshowmode
+let g:lightline = { 'colorscheme': 'solarized' }
+
+" code folding
+"set foldmethod=indent
+"set foldlevel=99
+
+" wrap toggle
+setlocal nowrap
+noremap <silent> <Leader>w :call ToggleWrap()<CR>
+function ToggleWrap()
+    if &wrap
+        echo "Wrap OFF"
+        setlocal nowrap
+        set virtualedit=all
+        silent! nunmap <buffer> <Up>
+        silent! nunmap <buffer> <Down>
+        silent! nunmap <buffer> <Home>
+        silent! nunmap <buffer> <End>
+        silent! iunmap <buffer> <Up>
+        silent! iunmap <buffer> <Down>
+        silent! iunmap <buffer> <Home>
+        silent! iunmap <buffer> <End>
+    else
+        echo "Wrap ON"
+        setlocal wrap linebreak nolist
+        set virtualedit=
+        setlocal display+=lastline
+        noremap  <buffer> <silent> <Up>   gk
+        noremap  <buffer> <silent> <Down> gj
+        noremap  <buffer> <silent> <Home> g<Home>
+        noremap  <buffer> <silent> <End>  g<End>
+        inoremap <buffer> <silent> <Up>   <C-o>gk
+        inoremap <buffer> <silent> <Down> <C-o>gj
+        inoremap <buffer> <silent> <Home> <C-o>g<Home>
+        inoremap <buffer> <silent> <End>  <C-o>g<End>
+    endif
+endfunction
+
+" move through split windows
+nmap <leader><Up> :wincmd k<CR>
+nmap <leader><Down> :wincmd j<CR>
+nmap <leader><Left> :wincmd h<CR>
+nmap <leader><Right> :wincmd l<CR>
+
+" move through buffers
+nmap <leader>[ :bp!<CR>
+nmap <leader>] :bn!<CR>
+nmap <leader>x :bd<CR>
+
+" restore place in file from previous session
+autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+
+" tag list
+map <leader>t :TagbarToggle<CR>
+
+" copy, cut and paste
+vmap <C-c> "+y
+vmap <C-x> "+c
+vmap <C-v> c<ESC>"+p
+imap <C-v> <ESC>"+pa
+
+" disable autoindent when pasting text
+" source: https://coderwall.com/p/if9mda/automatically-set-paste-mode-in-vim-when-pasting-in-insert-mode
+let &t_SI .= "\<Esc>[?2004h"
+let &t_EI .= "\<Esc>[?2004l"
+
+function! XTermPasteBegin()
+    set pastetoggle=<Esc>[201~
+    set paste
+    return ""
+endfunction
+
+inoremap <special> <expr> <Esc>[200~ XTermPasteBegin()
+
+" file browser
+let NERDTreeIgnore = ['\.pyc$', '__pycache__']
+let NERDTreeMinimalUI = 1
+let g:nerdtree_open = 0
+map <leader>t :call NERDTreeToggle()<CR>
+function NERDTreeToggle()
+    NERDTreeTabsToggle
+    if g:nerdtree_open == 1
+        let g:nerdtree_open = 0
+    else
+        let g:nerdtree_open = 1
+        wincmd p
+    endif
+endfunction
+let NERDTreeShowHidden=1
+" NERDTree setting defaults to work around http://github.com/scrooloose/nerdtree/issues/489
+let g:NERDTreeDirArrows = 1
+let g:NERDTreeDirArrowExpandable = '▸'
+let g:NERDTreeDirArrowCollapsible = '▾'
+let g:NERDTreeGlyphReadOnly = "RO"
+
+" run chezmoi apply whenever you save a dotfile #
+autocmd BufWritePost ~/.local/share/chezmoi/* ! chezmoi apply --source-path %
+
+" Hightlight on yank
+" From https://neovim.io/news/2021/07
+au TextYankPost * lua vim.highlight.on_yank {higroup="IncSearch", timeout=150, on_visual=true}
+
+" Set up language servers
+lua << EOF
+require'lspconfig'.pyright.setup{}
+EOF
+
+" Nicer LSP UI
+lua << EOF
+local saga = require 'lspsaga'
+EOF
+
+" Configure language server
+" https://github.com/neovim/nvim-lspconfig#keybindings-and-completion
+lua << EOF
+local nvim_lsp = require('lspconfig')
+
+-- Use an on_attach function to only map the following keys
+-- after the language server attaches to the current buffer
+local on_attach = function(client, bufnr)
+  local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
+  local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
+
+  --Enable completion triggered by <c-x><c-o>
+  buf_set_option('omnifunc', 'v:lua.vim.lsp.omnifunc')
+
+  -- Mappings.
+  local opts = { noremap=true, silent=true }
+
+  -- See `:help vim.lsp.*` for documentation on any of the below functions
+  buf_set_keymap('n', 'gD', '<Cmd>lua vim.lsp.buf.declaration()<CR>', opts)
+  buf_set_keymap('n', 'gd', '<Cmd>lua vim.lsp.buf.definition()<CR>', opts)
+  buf_set_keymap('n', 'K', '<Cmd>lua vim.lsp.buf.hover()<CR>', opts)
+  buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
+  buf_set_keymap('n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
+  buf_set_keymap('n', '<space>wa', '<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>', opts)
+  buf_set_keymap('n', '<space>wr', '<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>', opts)
+  buf_set_keymap('n', '<space>wl', '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>', opts)
+  buf_set_keymap('n', '<space>D', '<cmd>lua vim.lsp.buf.type_definition()<CR>', opts)
+  buf_set_keymap('n', '<space>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
+  buf_set_keymap('n', '<space>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
+  buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
+  buf_set_keymap('n', '<space>e', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
+  buf_set_keymap('n', '[d', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
+  buf_set_keymap('n', ']d', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
+  buf_set_keymap('n', '<space>q', '<cmd>lua vim.lsp.diagnostic.set_loclist()<CR>', opts)
+  buf_set_keymap("n", "<space>f", "<cmd>lua vim.lsp.buf.formatting()<CR>", opts)
+
+end
+
+-- Use a loop to conveniently call 'setup' on multiple servers and
+-- map buffer local keybindings when the language server attaches
+local servers = { "pyright" }
+for _, lsp in ipairs(servers) do
+  nvim_lsp[lsp].setup {
+    on_attach = on_attach,
+    flags = {
+      debounce_text_changes = 150,
+    }
+  }
+end
+EOF

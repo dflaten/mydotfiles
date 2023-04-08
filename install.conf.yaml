@@ -1,16 +1,40 @@
+# Dotbot config
+
+# install.conf.yaml
+- defaults:
+    link:
+      relink: true
+      create: true
+
+
 - clean: ['~']
 
+- create:
+  - ~/.vim
+
 - link:
-    ~/.profile: profile
-    ~/.bash_profile: bash_profile
-    ~/.bashrc: bashrc
-    ~/.gitconfig: gitconfig
-    ~/.tmux.conf: tmux.conf
-    ~/.vim/vimrc:
-        path: vim/vimrc
-        create: true
-    ~/.zprofile: zprofile
-    ~/.zshrc: zshrc
-    ~/bin: bin
+    # Shell
+    ~/.aliases: shell/.aliases
+    ~/.zshrc: shell/zshrc
 
+    # Alacritty
+    ~/.config/alacritty/alacritty.yml: alacritty/alacritty.yml
+    
+    # Git
+    ~/.gitconfig: git/gitconfig
+    ~/.gitignore: git/gitignore
+  
+    # Vim
+    ~/.vimrc: vim/vimrc
+    ~/.config/nvim/init.vim: vim/nvim/init.vim
 
+- shell:
+  - [git submodule update --init --recursive, Installing submodules]
+  - [chsh -s $(which zsh), Making zsh the default shell]
+  - [git config --global core.excludesFile '~/.gitignore', Set global .gitignore]
+
+- ifmacos:
+    - brew:
+        - bat
+        - fzf 
+        - neovim
