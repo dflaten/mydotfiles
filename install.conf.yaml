@@ -28,6 +28,9 @@
     ~/.vimrc: vim/vimrc
     ~/.config/nvim/init.vim: vim/nvim/init.vim
 
+    # Tmux
+    ~/.tmux.conf: tmux.conf
+
 - shell:
   - [git submodule update --init --recursive, Installing submodules]
   - [chsh -s $(which zsh), Making zsh the default shell]
