@@ -60,7 +60,7 @@ if need_to_install_plugins == 1
 endif
 
 " gfiles shortcut
-nnoremap <C-f> <cmd>Telescope find_files<cr>
+nnoremap <C-?> <cmd>Telescope find_files<cr>
 nnoremap <C-g> <cmd>Telescope git_files<cr>
 
 " always show the status bar
@@ -226,6 +226,16 @@ autocmd BufWritePost ~/.local/share/chezmoi/* ! chezmoi apply --source-path %
 " From https://neovim.io/news/2021/07
 au TextYankPost * lua vim.highlight.on_yank {higroup="IncSearch", timeout=150, on_visual=true}
 
+" Command to turn spell check on
+function! ToggleSpell()
+if &spell
+    set nospell
+else
+    set spell
+endif
+endfunction
+
+:command SpellCheck call ToggleSpell()
 " Set up language servers
 lua << EOF
 require'lspconfig'.pyright.setup{}
