@@ -15,10 +15,10 @@
 - link:
     # Shell
     ~/.aliases: shell/.aliases
-    ~/.zshrc: shell/zshrc
+    ~/.my_zshrc: shell/zshrc
 
-    # Alacritty
-    ~/.config/alacritty/alacritty.yml: alacritty/alacritty.yml
+    # Ghostty
+    ~/.config/ghostty: ghostty/ghostty
     
     # Git
     ~/.gitconfig: git/gitconfig
@@ -27,6 +27,9 @@
     # Vim
     ~/.vimrc: vim/vimrc
     ~/.config/nvim/init.vim: vim/nvim/init.vim
+
+    #Helix
+    ~/.config/helix: helix
 
     # Tmux
     ~/.tmux.conf: tmux.conf
